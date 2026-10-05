@@ -32,7 +32,7 @@ const download = repoUrl ? `${repoUrl}/releases/latest/download/${manifest.name}
 const links = [store && `[Install from VS Code Marketplace](${store})`, id ? `[Open in VS Code](vscode:extension/${id})` : '[Install in VS Code](INSTALL.md#install-from-vs-code)', repoUrl && `[Releases](${repoUrl}/releases)`, '[Installation guide](INSTALL.md)'].filter(Boolean).join(' · ');
 const readmePath = path.join(root, 'README.md');
 let readme = fs.readFileSync(readmePath, 'utf8').replace(/\n<!-- install-links:start -->[\s\S]*?<!-- install-links:end -->\n/, '\n');
-const installBlock = `<!-- install-links:start -->\n${links}\n${!store ? '\nMarketplace installation is coming after publisher setup.\n' : ''}<!-- install-links:end -->`;
+const installBlock = `<!-- install-links:start -->\n${links}\n${store ? '\nMarketplace links activate after the listing is published.\n' : '\nMarketplace installation is coming after publisher setup.\n'}<!-- install-links:end -->`;
 const existingReadme = fs.readFileSync(readmePath, 'utf8');
 readme = existingReadme.includes('<!-- install-links:start -->') ?
     existingReadme.replace(/<!-- install-links:start -->[\s\S]*?<!-- install-links:end -->/, installBlock) :

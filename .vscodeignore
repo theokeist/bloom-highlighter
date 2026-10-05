@@ -9,12 +9,14 @@ CONTRIBUTING.md
 docs/PUBLISHING.md
 docs/install.html
 .vscode-test/**
+dist/**
 src/**
 tests/**
 scripts/**
 samples/**
 **/*.map
 **/*.vsix
+**/*.zip
 AUDIT.md
 eslint.config.cjs
 tsconfig.json

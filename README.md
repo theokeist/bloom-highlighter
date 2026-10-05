@@ -8,9 +8,9 @@
 Make code easier to read. Bloom brings flow, functions and structure into focus while you code in VS Code.
 
 <!-- install-links:start -->
-[Install in VS Code](INSTALL.md#install-from-vs-code) · [Download build artifact](https://github.com/theokeist/bloom-highlighter/actions/runs/37363579130/artifacts/11367856693) · [Releases](https://github.com/theokeist/bloom-highlighter/releases)
+[Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=theokeist-hcode-org.bloom-highlighter) · [Open in VS Code](vscode:extension/theokeist-hcode-org.bloom-highlighter) · [Releases](https://github.com/theokeist/bloom-highlighter/releases) · [Installation guide](INSTALL.md)
 
-Marketplace installation is coming after publisher setup.
+Marketplace links activate after the listing is published.
 <!-- install-links:end -->
 
 ## Pick your view

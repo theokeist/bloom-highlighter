@@ -2,10 +2,10 @@
 
 ## Configure the public identity
 
-The current source needs a real GitHub owner/repository and an existing Visual Studio Marketplace publisher ID. Do not publish under `undefined_publisher` or the placeholder GitHub owner `user`.
+Bloom uses GitHub repository `theokeist/bloom-highlighter` and Marketplace publisher `theokeist-hcode-org`. Its extension ID is `theokeist-hcode-org.bloom-highlighter`. The first Marketplace upload still needs to be completed through this publisher's account.
 
 ```sh
-npm run configure-release -- --repository OWNER/bloom-highlighter --publisher PUBLISHER
+npm run configure-release -- --repository theokeist/bloom-highlighter --publisher theokeist-hcode-org
 npm run check-release
 ```
 

@@ -1,12 +1,16 @@
 # Install Bloom Highlighter
 
-Bloom 0.13.1 requires desktop VS Code 1.95 or newer. Use the local `bloom-highlighter-0.13.1.vsix` release file. No Marketplace listing is assumed by this guide.
+Publisher: **theokeist-hcode-org**. Extension ID: `theokeist-hcode-org.bloom-highlighter`.
+
+If you installed a local Bloom package before 0.13.2, disable or uninstall the older **Bloom Syntax Highlighter** entry before installing this package. Earlier packages used `undefined_publisher`; VS Code treats the new publisher identity as a separate extension, so both copies could otherwise register the same commands.
+
+Bloom 0.13.2 requires desktop VS Code 1.95 or newer. Use the local `bloom-highlighter-0.13.2.vsix` release file. No Marketplace listing is assumed by this guide.
 
 ## Install from VS Code
 
 1. Open VS Code and press **Ctrl+Shift+P** on Windows/Linux or **Cmd+Shift+P** on macOS.
 2. Run **Extensions: Install from VSIX...**.
-3. Select `bloom-highlighter-0.13.1.vsix`.
+3. Select `bloom-highlighter-0.13.2.vsix`.
 4. If VS Code asks you to reload, do so.
 5. Open a supported code file and run **Bloom: Choose View**. Select **Operational** to start.
 
@@ -17,13 +21,13 @@ These installation methods are documented in the [VS Code extension installation
 From the folder containing the release:
 
 ```powershell
-code --install-extension ./bloom-highlighter-0.13.1.vsix
+code --install-extension ./bloom-highlighter-0.13.2.vsix
 ```
 
 For this Windows checkout:
 
 ```powershell
-code --install-extension "C:\Users\martin\Desktop\bloom-highlighter\bloom-highlighter-0.13.1.vsix"
+code --install-extension "C:\Users\martin\Desktop\bloom-highlighter\bloom-highlighter-0.13.2.vsix"
 ```
 
 If `code` is unavailable in your terminal, use the VS Code installation steps above. The [VS Code CLI reference](https://code.visualstudio.com/docs/configure/command-line) documents installing and updating from a VSIX path.
