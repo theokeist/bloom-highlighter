@@ -340,7 +340,8 @@
     "package": "vsce package",
     "configure-release": "node scripts/release-links.js",
     "check-release": "node scripts/release-links.js --check",
-    "publish:marketplace": "npm run check-release && vsce publish"
+    "publish:marketplace": "npm run check-release && vsce publish",
+    "render-doc-images": "npm run compile && node scripts/render-doc-images.js"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",
@@ -359,11 +360,22 @@
   "icon": "media/icon.png",
   "license": "MIT",
   "keywords": [
-    "syntax",
-    "highlighting",
-    "dart",
+    "syntax highlighting",
+    "code reading",
+    "code visualization",
     "functions",
-    "code-reading"
+    "dart",
+    "flutter",
+    "javascript",
+    "typescript",
+    "python",
+    "rust",
+    "go",
+    "react",
+    "vue",
+    "svelte",
+    "colors",
+    "productivity"
   ],
   "homepage": "https://github.com/theokeist/bloom-highlighter#readme",
   "bugs": {
