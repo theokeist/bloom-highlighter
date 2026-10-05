@@ -1,11 +1,14 @@
 # Bloom Syntax Highlighter
 
+[![Build status](https://github.com/theokeist/bloom-highlighter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/theokeist/bloom-highlighter/actions/workflows/ci.yml)
+[![Source version](https://img.shields.io/github/package-json/v/theokeist/bloom-highlighter?label=version)](https://github.com/theokeist/bloom-highlighter/blob/main/package.json)
+
 ![Bloom: four views, customizable colors and language-wide switches](https://raw.githubusercontent.com/theokeist/bloom-highlighter/main/media/store/bloom-overview.png)
 
 Make code easier to read. Bloom brings flow, functions and structure into focus while you code in VS Code.
 
 <!-- install-links:start -->
-[Get Bloom](https://github.com/theokeist/bloom-highlighter/releases/latest) · [Install guide](INSTALL.md)
+[Install in VS Code](INSTALL.md#install-from-vs-code) · [Download build artifact](https://github.com/theokeist/bloom-highlighter/actions/runs/37363579130/artifacts/11367856693) · [Releases](https://github.com/theokeist/bloom-highlighter/releases)
 
 Marketplace installation is coming after publisher setup.
 <!-- install-links:end -->
@@ -23,7 +26,7 @@ Open the Bloom flower in the Activity Bar. Expand a category to toggle it or cho
 
 ## Get started
 
-Download the release's `.vsix`, run **Extensions: Install from VSIX…**, then **Developer: Reload Window**. Open a code file and run **Bloom: Show Sidebar**.
+Download the build artifact (GitHub sign-in may be required), unzip it, and run **Extensions: Install from VSIX…** in VS Code. Select the `.vsix`, then run **Developer: Reload Window** and **Bloom: Show Sidebar**.
 
 Supports Dart/Flutter, JavaScript/TypeScript, Python, Rust, Go and many more. Includes React, Vue and Svelte recognition. Requires desktop VS Code 1.95+.
 

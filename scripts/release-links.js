@@ -29,7 +29,7 @@ const repoUrl = realRepository ? url.replace(/\.git$/, '') : undefined;
 const id = manifest.publisher && `${manifest.publisher}.${manifest.name}`;
 const store = id ? `https://marketplace.visualstudio.com/items?itemName=${id}` : undefined;
 const download = repoUrl ? `${repoUrl}/releases/latest/download/${manifest.name}-${manifest.version}.vsix` : `../${manifest.name}-${manifest.version}.vsix`;
-const links = [store && `[Install from VS Code Marketplace](${store})`, id && `[Open in VS Code](vscode:extension/${id})`, repoUrl && `[Download VSIX](${download})`, '[Installation guide](INSTALL.md)'].filter(Boolean).join(' · ');
+const links = [store && `[Install from VS Code Marketplace](${store})`, id ? `[Open in VS Code](vscode:extension/${id})` : '[Install in VS Code](INSTALL.md#install-from-vs-code)', repoUrl && `[Releases](${repoUrl}/releases)`, '[Installation guide](INSTALL.md)'].filter(Boolean).join(' · ');
 const readmePath = path.join(root, 'README.md');
 let readme = fs.readFileSync(readmePath, 'utf8').replace(/\n<!-- install-links:start -->[\s\S]*?<!-- install-links:end -->\n/, '\n');
 const installBlock = `<!-- install-links:start -->\n${links}\n${!store ? '\nMarketplace installation is coming after publisher setup.\n' : ''}<!-- install-links:end -->`;
