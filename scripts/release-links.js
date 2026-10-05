@@ -32,7 +32,11 @@ const download = repoUrl ? `${repoUrl}/releases/latest/download/${manifest.name}
 const links = [store && `[Install from VS Code Marketplace](${store})`, id && `[Open in VS Code](vscode:extension/${id})`, repoUrl && `[Download VSIX](${download})`, '[Installation guide](INSTALL.md)'].filter(Boolean).join(' · ');
 const readmePath = path.join(root, 'README.md');
 let readme = fs.readFileSync(readmePath, 'utf8').replace(/\n<!-- install-links:start -->[\s\S]*?<!-- install-links:end -->\n/, '\n');
-readme = readme.replace('# Bloom Syntax Highlighter', `# Bloom Syntax Highlighter\n\n<!-- install-links:start -->\n${links}\n\nThe GitHub download requires a published release with the matching VSIX asset.\n${!store ? '\nMarketplace installation will be available after a publisher ID is configured and this version is published.\n' : ''}<!-- install-links:end -->`);
+const installBlock = `<!-- install-links:start -->\n${links}\n${!store ? '\nMarketplace installation is coming after publisher setup.\n' : ''}<!-- install-links:end -->`;
+const existingReadme = fs.readFileSync(readmePath, 'utf8');
+readme = existingReadme.includes('<!-- install-links:start -->') ?
+    existingReadme.replace(/<!-- install-links:start -->[\s\S]*?<!-- install-links:end -->/, installBlock) :
+    existingReadme.replace('# Bloom Syntax Highlighter', `# Bloom Syntax Highlighter\n\n${installBlock}`);
 fs.writeFileSync(readmePath, readme);
 const button = (label, href) => href ? `<a class="button" href="${href}">${label}</a>` : `<span class="button disabled">${label} — coming after publishing</span>`;
 fs.writeFileSync(path.join(root, 'docs/install.html'), `<!doctype html>
