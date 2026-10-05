@@ -4,6 +4,7 @@
 .gitignore
 .gitattributes
 media/publisher/**
+media/publisher-personal/**
 CONTRIBUTING.md
 docs/PUBLISHING.md
 docs/install.html

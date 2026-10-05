@@ -2,6 +2,7 @@ node_modules/
 out/
 .vscode-test/
 *.vsix
+*.zip
 *.log
 *.map
 .env
@@ -10,3 +11,10 @@ out/
 coverage/
 dist/
 tests/host/result.json
+
+# Local publisher artwork and internal review notes are not extension source.
+media/publisher/
+media/publisher-personal/
+scripts/render-publisher-icons.js
+scripts/render-personal-icons.js
+AUDIT.md
