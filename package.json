@@ -1,0 +1,372 @@
+{
+  "name": "bloom-highlighter",
+  "displayName": "Bloom Syntax Highlighter",
+  "description": "Language-specific cognitive code views, category switches, colors and risky-operation review",
+  "version": "0.13.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theokeist/bloom-highlighter.git"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Themes",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguage:dart",
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact",
+    "onLanguage:vue",
+    "onLanguage:svelte",
+    "onLanguage:python",
+    "onLanguage:ruby",
+    "onLanguage:cpp",
+    "onLanguage:c",
+    "onLanguage:objective-c",
+    "onLanguage:objective-cpp"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "bloom",
+          "title": "Bloom",
+          "icon": "media/bloom.svg"
+        }
+      ]
+    },
+    "views": {
+      "bloom": [
+        {
+          "id": "bloom.controls",
+          "name": "Code Views"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "bloom.viewOperational",
+        "title": "Bloom: Switch to Operational View"
+      },
+      {
+        "command": "bloom.viewInterfaces",
+        "title": "Bloom: Switch to Interface View"
+      },
+      {
+        "command": "bloom.viewStructural",
+        "title": "Bloom: Switch to Structural View"
+      },
+      {
+        "command": "bloom.selectView",
+        "title": "Bloom: Choose View"
+      },
+      {
+        "command": "bloom.toggle",
+        "title": "Bloom: Toggle Highlighting"
+      },
+      {
+        "command": "bloom.reloadDefinitions",
+        "title": "Bloom: Reload Language Definitions"
+      },
+      {
+        "command": "bloom.adjustDimming",
+        "title": "Bloom: Adjust Dimming"
+      },
+      {
+        "command": "bloom.toggleInstant",
+        "title": "Bloom: Toggle Instant Switching"
+      },
+      {
+        "command": "bloom.showSidebar",
+        "title": "Bloom: Show Sidebar"
+      },
+      {
+        "command": "bloom.viewDangerous",
+        "title": "Bloom: Switch to Dangerous View"
+      },
+      {
+        "command": "bloom.toggleDangerous",
+        "title": "Bloom: Toggle Dangerous View"
+      },
+      {
+        "command": "bloom.toggleDangerFocus",
+        "title": "Bloom: Toggle Strong Danger Focus"
+      },
+      {
+        "command": "bloom.toggleCategory",
+        "title": "Bloom: Toggle Highlight Category"
+      },
+      {
+        "command": "bloom.toggleLanguage",
+        "title": "Bloom: Toggle Current Language"
+      },
+      {
+        "command": "bloom.chooseColor",
+        "title": "Bloom: Choose Category Color"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "bloom.viewOperational",
+        "key": "ctrl+alt+b o",
+        "when": "editorTextFocus && bloom.supported",
+        "mac": "cmd+alt+b o"
+      },
+      {
+        "command": "bloom.viewInterfaces",
+        "key": "ctrl+alt+b i",
+        "when": "editorTextFocus && bloom.supported",
+        "mac": "cmd+alt+b i"
+      },
+      {
+        "command": "bloom.viewStructural",
+        "key": "ctrl+alt+b s",
+        "when": "editorTextFocus && bloom.supported",
+        "mac": "cmd+alt+b s"
+      }
+    ],
+    "configuration": {
+      "title": "Bloom Settings",
+      "properties": {
+        "bloom.speed": {
+          "type": "number",
+          "default": 300,
+          "description": "Delay in milliseconds before semantic highlights appear when switching views. Set to 0 for instant, reduced-motion updates.",
+          "minimum": 0,
+          "maximum": 2000,
+          "scope": "resource"
+        },
+        "bloom.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/Disable the Bloom effect.",
+          "scope": "resource"
+        },
+        "bloom.frameworks": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Highlight recognized framework imports, component tags, directives and runes."
+        },
+        "bloom.dimOpacity": {
+          "type": "number",
+          "default": 0.65,
+          "minimum": 0.2,
+          "maximum": 1,
+          "scope": "resource",
+          "description": "Opacity of code outside the active cognitive categories. Set to 1 to disable dimming."
+        },
+        "bloom.maxFileSize": {
+          "type": "integer",
+          "default": 500000,
+          "minimum": 1000,
+          "scope": "resource",
+          "description": "Skip Bloom above this number of UTF-16 characters to keep large files responsive."
+        },
+        "bloom.languageSettings": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Language-specific switches and colors, applied to every file of that language.",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "dangerousEmphasis": {
+                "type": "boolean",
+                "default": false
+              },
+              "categories": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "boolean"
+                }
+              },
+              "colors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+                }
+              }
+            }
+          }
+        }
+      },
+      "id": "bloom"
+    },
+    "colors": [
+      {
+        "id": "bloom.legend.alert",
+        "description": "Bloom alert legend color",
+        "defaults": {
+          "dark": "#ff0055",
+          "light": "#b42342",
+          "highContrast": "#ff0055",
+          "highContrastLight": "#b42342"
+        }
+      },
+      {
+        "id": "bloom.legend.logic",
+        "description": "Bloom logic legend color",
+        "defaults": {
+          "dark": "#00f2ff",
+          "light": "#006875",
+          "highContrast": "#00f2ff",
+          "highContrastLight": "#006875"
+        }
+      },
+      {
+        "id": "bloom.legend.mutation",
+        "description": "Bloom mutation legend color",
+        "defaults": {
+          "dark": "#ff8c00",
+          "light": "#9b4900",
+          "highContrast": "#ff8c00",
+          "highContrastLight": "#9b4900"
+        }
+      },
+      {
+        "id": "bloom.legend.guards",
+        "description": "Bloom guards legend color",
+        "defaults": {
+          "dark": "#34d399",
+          "light": "#126741",
+          "highContrast": "#34d399",
+          "highContrastLight": "#126741"
+        }
+      },
+      {
+        "id": "bloom.legend.interface",
+        "description": "Bloom interface legend color",
+        "defaults": {
+          "dark": "#fbbf24",
+          "light": "#765500",
+          "highContrast": "#fbbf24",
+          "highContrastLight": "#765500"
+        }
+      },
+      {
+        "id": "bloom.legend.native",
+        "description": "Bloom native legend color",
+        "defaults": {
+          "dark": "#38bdf8",
+          "light": "#006891",
+          "highContrast": "#38bdf8",
+          "highContrastLight": "#006891"
+        }
+      },
+      {
+        "id": "bloom.legend.prototype",
+        "description": "Bloom prototype legend color",
+        "defaults": {
+          "dark": "#818cf8",
+          "light": "#5541a5",
+          "highContrast": "#818cf8",
+          "highContrastLight": "#5541a5"
+        }
+      },
+      {
+        "id": "bloom.legend.structural",
+        "description": "Bloom structural legend color",
+        "defaults": {
+          "dark": "#f472b6",
+          "light": "#a32771",
+          "highContrast": "#f472b6",
+          "highContrastLight": "#a32771"
+        }
+      },
+      {
+        "id": "bloom.legend.anchor",
+        "description": "Bloom anchor legend color",
+        "defaults": {
+          "dark": "#ffffff",
+          "light": "#333333",
+          "highContrast": "#ffffff",
+          "highContrastLight": "#333333"
+        }
+      },
+      {
+        "id": "bloom.legend.internal",
+        "description": "Bloom internal legend color",
+        "defaults": {
+          "dark": "#a855f7",
+          "light": "#7535a5",
+          "highContrast": "#a855f7",
+          "highContrastLight": "#7535a5"
+        }
+      },
+      {
+        "id": "bloom.legend.danger",
+        "description": "Potentially risky operations",
+        "defaults": {
+          "dark": "#ff4d4d",
+          "light": "#b42318",
+          "highContrast": "#ff4d4d",
+          "highContrastLight": "#b42318"
+        }
+      },
+      {
+        "id": "bloom.legend.functions",
+        "description": "Bloom functions and calls color",
+        "defaults": {
+          "highContrastLight": "#765500",
+          "dark": "#fbbf24",
+          "highContrast": "#fbbf24",
+          "light": "#765500"
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./ && npm run compile-defs",
+    "compile-defs": "node scripts/compile-defs.js",
+    "watch": "npm run compile && node scripts/watch.js",
+    "pretest": "npm run compile",
+    "lint": "eslint src scripts tests",
+    "test": "node --test tests/*.test.js",
+    "generate-rules": "node scripts/generate-language-rules.js",
+    "package": "vsce package",
+    "configure-release": "node scripts/release-links.js",
+    "check-release": "node scripts/release-links.js --check",
+    "publish:marketplace": "npm run check-release && vsce publish"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.9.2",
+    "eslint": "^9.39.5",
+    "typescript-eslint": "^8.71.0"
+  },
+  "dependencies": {
+    "@vue/compiler-dom": "3.5",
+    "@vue/compiler-sfc": "3.5",
+    "svelte": "^5.57.1",
+    "typescript": "5.9"
+  },
+  "icon": "media/icon.png",
+  "license": "MIT",
+  "keywords": [
+    "syntax",
+    "highlighting",
+    "dart",
+    "functions",
+    "code-reading"
+  ],
+  "homepage": "https://github.com/theokeist/bloom-highlighter#readme",
+  "bugs": {
+    "url": "https://github.com/theokeist/bloom-highlighter/issues"
+  }
+}

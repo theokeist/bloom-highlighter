@@ -1,0 +1,59 @@
+name: Release Bloom
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish_marketplace:
+        description: Publish this version to Visual Studio Marketplace
+        type: boolean
+        default: false
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bloom-vsix
+          path: '*.vsix'
+      - name: Attach package to GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p 'require("./package.json").version')
+          test "$GITHUB_REF_NAME" = "v$VERSION"
+          gh release create "$GITHUB_REF_NAME" "bloom-highlighter-$VERSION.vsix" --title "Bloom $VERSION" --notes-file docs/RELEASE_NOTES.md
+  marketplace:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_marketplace
+    needs: package
+    runs-on: ubuntu-latest
+    environment: marketplace
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check-release
+      - uses: actions/download-artifact@v4
+        with:
+          name: bloom-vsix
+      - name: Publish validated VSIX
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --packagePath "bloom-highlighter-$(node -p 'require("./package.json").version').vsix"

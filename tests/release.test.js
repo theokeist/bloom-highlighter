@@ -1,0 +1,26 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { spawnSync } = require('node:child_process');
+test('release setup requires real identity and generates consistent installation links', t => {
+    const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'bloom-release-'));
+    t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+    fs.mkdirSync(path.join(directory, 'scripts'));
+    fs.mkdirSync(path.join(directory, 'docs'));
+    fs.copyFileSync(path.join(__dirname, '../scripts/release-links.js'), path.join(directory, 'scripts/release-links.js'));
+    fs.writeFileSync(path.join(directory, 'package.json'), JSON.stringify({ name: 'bloom-highlighter', version: '0.13.1', repository: 'https://github.com/user/bloom-highlighter' }));
+    fs.writeFileSync(path.join(directory, 'README.md'), '# Bloom Syntax Highlighter\n');
+    const run = (...args) => spawnSync(process.execPath, [path.join(directory, 'scripts/release-links.js'), ...args], { encoding: 'utf8' });
+    assert.notEqual(run('--check').status, 0);
+    assert.equal(run('--repository', 'theokeist/bloom-highlighter').status, 0);
+    assert.match(fs.readFileSync(path.join(directory, 'docs/install.html'), 'utf8'), /coming after publishing/);
+    assert.equal(run('--publisher', 'example-publisher').status, 0);
+    assert.equal(run('--check').status, 0);
+    const readme = fs.readFileSync(path.join(directory, 'README.md'), 'utf8');
+    assert.match(readme, /itemName=example-publisher.bloom-highlighter/);
+    assert.match(readme, /vscode:extension\/example-publisher.bloom-highlighter/);
+    assert.equal((readme.match(/install-links:start/g) ?? []).length, 1);
+    assert.notEqual(run('--repository', 'user/bloom-highlighter').status, 0);
+});

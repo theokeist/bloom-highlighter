@@ -1,0 +1,12 @@
+node_modules/
+out/
+.vscode-test/
+*.vsix
+*.log
+*.map
+.env
+.env.*
+!.env.example
+coverage/
+dist/
+tests/host/result.json
