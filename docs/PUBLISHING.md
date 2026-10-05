@@ -15,7 +15,7 @@ This updates the manifest repository, homepage, issue tracker, publisher, README
 
 Create the desired GitHub repository, then from this folder:
 
-This prepared checkout already has a `main` branch and `origin` set to `git@github.com:theokeist/bloom-highlighter.git`; skip `git init` and `git remote add` here. No commit or push has been performed by the preparation.
+This checkout already has a `main` branch and `origin` set to `git@github.com:theokeist/bloom-highlighter.git`; skip `git init` and `git remote add` here.
 
 ```sh
 git init -b main
@@ -42,6 +42,8 @@ git push origin main --tags
 ```
 
 Replace VERSION with the exact package version. The release workflow validates the tag against the manifest, builds the package and attaches it to a GitHub release. The install page's VSIX download depends on that release asset existing.
+
+Pushes to `main` also check for the manifest's existing version tag and create its release if missing. The workflow checks out that tag before building, so the attached package comes from the tagged source. Existing releases are left intact.
 
 ## Publish to Visual Studio Marketplace
 
