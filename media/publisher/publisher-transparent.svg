@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24">
+  <path d="M12 12C5 12 3 7 5 4C9 3 12 6 12 12Z" fill="#22d3ee"/>
+  <path d="M12 12C5 12 3 7 5 4C9 3 12 6 12 12Z" fill="#fbbf24" transform="rotate(90 12 12)"/>
+  <path d="M12 12C5 12 3 7 5 4C9 3 12 6 12 12Z" fill="#f472b6" transform="rotate(180 12 12)"/>
+  <path d="M12 12C5 12 3 7 5 4C9 3 12 6 12 12Z" fill="#a78bfa" transform="rotate(270 12 12)"/>
+  <circle cx="12" cy="12" r="2" fill="#101a2d"/>
+  <circle cx="12" cy="12" r="0.9" fill="#ff6b6b"/>
+</svg>
