@@ -107,8 +107,11 @@ test('speed controls view bloom and edited versions cannot receive stale ranges'
     await delay(35);
     assert.deepEqual(textRanges(editor, '#34d399'), ['return']);
     painter.update(editor, true);
+    const writes = editor.writes;
     editor.document.edit('const a = 1;');
     await delay(35);
+    assert.equal(editor.writes, writes, 'An obsolete delayed frame must never write after an edit');
+    painter.update(editor);
     assert.deepEqual(textRanges(editor, '#34d399'), []);
     painter.dispose();
 });
@@ -191,7 +194,8 @@ test('extension activates Dart, repaints both editors, reacts to settings and di
         workspaceState: { get: (name, fallback) => fallback, update: async () => {} } };
     t.after(() => context.subscriptions.forEach(subscription => subscription.dispose()));
     activate(context);
-    const controls = mock.providers.get('bloom.controls').getChildren();
+    const provider = mock.providers.get('bloom.controls');
+    const controls = provider.getChildren(provider.getChildren()[0]);
     assert.deepEqual(controls.slice(0, 3).map(item => item.command.command),
         ['bloom.viewOperational', 'bloom.viewInterfaces', 'bloom.viewStructural']);
     assert.ok(controls.filter(item => item.command).every(item => mock.commands.has(item.command.command)));
@@ -214,4 +218,63 @@ test('extension activates Dart, repaints both editors, reacts to settings and di
     await delay(75);
     assert.equal(first.writes + second.writes, writes);
     assert.deepEqual(mock.messages, []);
+});
+
+
+test('unchanged viewport repaints do not clear highlights or write duplicate decorations', () => {
+    const painter = new BloomPainter();
+    const editor = mock.editor(mock.document('if (ready) { return; }'));
+    painter.update(editor);
+    const writes = editor.writes;
+    const types = mock.types.length;
+    painter.update(editor);
+    assert.equal(editor.writes, writes);
+    assert.equal(mock.types.length, types);
+    assert.ok(textRanges(editor, '#34d399').includes('return'));
+    painter.dispose();
+});
+
+test('delayed view replacement retains the previous frame and clears obsolete categories only at commit', async () => {
+    mock.settings.speed = 25;
+    const painter = new BloomPainter();
+    const editor = mock.editor(mock.document('class A { run() { return; } }'));
+    painter.update(editor);
+    painter.setMode(ViewMode.Structural, false);
+    const retained = textRanges(editor, '#34d399');
+    painter.update(editor, true);
+    assert.deepEqual(textRanges(editor, '#34d399'), retained);
+    assert.ok(retained.includes('return'));
+    await delay(45);
+    assert.deepEqual(textRanges(editor, '#34d399'), []);
+    assert.deepEqual(textRanges(editor, '#f472b6'), ['class']);
+    painter.dispose();
+});
+
+test('scope styles are reused on repeated view switches', () => {
+    const painter = new BloomPainter();
+    mock.editor(mock.document('class A { run() { return; } }'));
+    painter.setMode(ViewMode.Structural);
+    painter.setMode(ViewMode.Operational);
+    const count = mock.types.length;
+    painter.setMode(ViewMode.Structural);
+    painter.setMode(ViewMode.Operational);
+    assert.equal(mock.types.length, count);
+    painter.dispose();
+});
+
+
+test('changing dimming replaces the old layer and disabling a category removes its highlights', () => {
+    const painter = new BloomPainter();
+    const editor = mock.editor(mock.document('return;'));
+    painter.update(editor);
+    mock.settings.dimOpacity = 0.8;
+    mock.settings.languageSettings = { typescript: { categories: { guards: false } } };
+    painter.update(editor);
+    assert.deepEqual(textRanges(editor, '#34d399'), []);
+    const opacityRanges = opacity => [...editor.decorations].filter(([type]) => type.options.opacity === opacity)
+        .flatMap(([, ranges]) => ranges);
+    assert.deepEqual(opacityRanges('0.65'), []);
+    assert.ok(opacityRanges('0.8').length);
+    delete mock.settings.languageSettings;
+    painter.dispose();
 });

@@ -2,6 +2,7 @@ import { analyzeScript, CodeAnalysis, emptyAnalysis, Scope } from './codeAnalysi
 import { analyzeVue, analyzeSvelte } from './frameworks';
 import { maskConventional } from './languageSupport';
 import { maskDart } from './dartLexical';
+import { dartPatterns } from './patternAnalysis';
 
 export function analyzeCode(text: string, language: string, frameworks = true, fileName = ''): CodeAnalysis {
     let result: CodeAnalysis;
@@ -21,6 +22,7 @@ function analyzeConventional(text: string, language: string): CodeAnalysis {
     const ruby = language === 'ruby';
     result.code = language === 'dart' ? maskDart(text) :
         maskConventional(text, language);
+    if (language === 'dart') result.syntax = dartPatterns(result.code);
     const lines = result.code.split('\n');
     let offset = 0;
     if (python) {

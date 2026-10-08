@@ -4,6 +4,7 @@ import { OperationalKey } from '../core/schemaParser';
 import { CodeAnalysis, Span } from '../core/codeAnalysis';
 import { analyzeCode } from '../core/languageAnalysis';
 import { getDepthAnalysis } from '../core/depthTracker';
+import { categorySpans } from '../core/patternAnalysis';
 import { preferencesFor, highlightingEnabled, categoryEnabled, categoryColor } from '../preferences';
 
 export enum ViewMode {
@@ -34,9 +35,13 @@ const lightColors: Record<OperationalKey, string> = {
 export class BloomPainter {
     private languageDecorations = new Map<string, DecorationSet>();
     private blockDecorations: vscode.TextEditorDecorationType[] = [];
+    private blockSets = new Map<ViewMode, vscode.TextEditorDecorationType[]>();
+    private applied = new WeakMap<vscode.TextEditor, { document: vscode.TextDocument; version: number; ranges: Map<vscode.TextEditorDecorationType, vscode.Range[]> }>();
+    private spans = new WeakMap<CodeAnalysis, { schema: LanguageSchema; categories: Map<OperationalKey, Span[]>; noise: Span[]; layers?: Span[][] }>();
     private dimmers = new Map<number, vscode.TextEditorDecorationType>();
     private cache = new WeakMap<vscode.TextDocument, CachedAnalysis>();
     private pending = new Map<vscode.TextEditor, ReturnType<typeof setTimeout>>();
+    private allCategoryDecorations = new Set<vscode.TextEditorDecorationType>();
     private disposed = false;
     private currentMode = ViewMode.Operational;
 
@@ -48,9 +53,10 @@ export class BloomPainter {
     private decorationsFor(schema: LanguageSchema, document: vscode.TextDocument): DecorationSet {
         const strong = this.currentMode === ViewMode.Dangerous && preferencesFor(document).dangerousEmphasis === true;
         const colors = JSON.stringify({ colors: preferencesFor(document).colors ?? {}, strong });
-        const existing = this.languageDecorations.get(document.languageId);
+        const styleKey = `${document.languageId}:${colors}`;
+        const existing = this.languageDecorations.get(styleKey);
         if (existing?.schema === schema && existing.colors === colors) return existing;
-        existing?.decorations.forEach(decoration => decoration.dispose());
+
         const decorations = new Map<OperationalKey, vscode.TextEditorDecorationType>();
         for (const [category, mapping] of Object.entries(schema.mapping)) {
             const key = category as OperationalKey;
@@ -65,19 +71,22 @@ export class BloomPainter {
                 rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
             }));
         }
+        decorations.forEach(type => this.allCategoryDecorations.add(type));
         const set = { schema, decorations, colors };
-        this.languageDecorations.set(document.languageId, set);
+        this.languageDecorations.set(styleKey, set);
         return set;
     }
 
     private updateBlockDecorations(): void {
-        this.blockDecorations.forEach(decoration => decoration.dispose());
+        const existing = this.blockSets.get(this.currentMode);
+        if (existing) { this.blockDecorations = existing; return; }
         const hue = this.currentMode === ViewMode.Operational ? 180 : this.currentMode === ViewMode.Interfaces ? 45 : 320;
         this.blockDecorations = [0, 20, 40, 60].map(shift => vscode.window.createTextEditorDecorationType({
             backgroundColor: `hsla(${(hue + shift) % 360}, 60%, 50%, 0.05)`,
             isWholeLine: false,
             rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
         }));
+        this.blockSets.set(this.currentMode, this.blockDecorations);
     }
 
     public setMode(mode: ViewMode, refresh = true): void {
@@ -103,9 +112,8 @@ export class BloomPainter {
     public clear(editor: vscode.TextEditor): void {
         this.cancel(editor);
         if (this.disposed) return;
-        this.blockDecorations.forEach(decoration => editor.setDecorations(decoration, []));
-        this.dimmers.forEach(decoration => editor.setDecorations(decoration, []));
-        this.languageDecorations.forEach(set => set.decorations.forEach(decoration => editor.setDecorations(decoration, [])));
+        this.applied.get(editor)?.ranges.forEach((_, type) => editor.setDecorations(type, []));
+        this.applied.delete(editor);
     }
 
     public status(editor: vscode.TextEditor | undefined): string | undefined {
@@ -120,13 +128,13 @@ export class BloomPainter {
 
     public update(editor: vscode.TextEditor, animate = false, prepared?: CodeAnalysis): void {
         if (this.disposed) return;
-        this.clear(editor);
+        this.cancel(editor);
         const document = editor.document;
         const config = vscode.workspace.getConfiguration('bloom', document.uri);
         const schema = UniversalLoader.getSchema(document.languageId);
-        if (!schema || !highlightingEnabled(document)) return;
+        if (!schema || !highlightingEnabled(document)) { this.clear(editor); return; }
         const text = document.getText();
-        if (text.length > config.get('maxFileSize', 500000)) return;
+        if (text.length > config.get('maxFileSize', 500000)) { this.clear(editor); return; }
         const frameworks = config.get('frameworks', true);
         let cached = this.cache.get(document);
         if (!cached || cached.version !== document.version || cached.language !== document.languageId || cached.frameworks !== frameworks) {
@@ -136,6 +144,13 @@ export class BloomPainter {
         }
         const analysis = cached.analysis;
         const set = this.decorationsFor(schema, document);
+        const next = new Map<vscode.TextEditorDecorationType, vscode.Range[]>();
+        let indexed = this.spans.get(analysis);
+        if (!indexed || indexed.schema !== schema) {
+            indexed = { schema, categories: new Map(), noise: Array.from(analysis.code.matchAll(/\S+/g),
+                match => ({ start: match.index!, end: match.index! + match[0].length })) };
+            this.spans.set(analysis, indexed);
+        }
         const viewport: Span[] = editor.visibleRanges.length ? editor.visibleRanges.map(range => ({
             start: document.offsetAt(document.lineAt(Math.max(0, range.start.line - 20)).range.start),
             end: document.offsetAt(document.lineAt(Math.min(document.lineCount - 1, range.end.line + 20)).range.end)
@@ -161,35 +176,46 @@ export class BloomPainter {
                     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed });
                 this.dimmers.set(opacity, dimmer);
             }
-            const spans = Array.from(analysis.code.matchAll(/\S+/g), match => ({ start: match.index!, end: match.index! + match[0].length }));
-            editor.setDecorations(dimmer, clippedRanges(spans));
+            next.set(dimmer, clippedRanges(indexed.noise));
         }
         // Structural emphasis belongs to declarations, not a wash over every scope body.
         if (this.currentMode !== ViewMode.Structural && this.currentMode !== ViewMode.Dangerous) {
-            const layers = getDepthAnalysis(document, analysis).layers;
-            layers.forEach((ranges, index) => editor.setDecorations(this.blockDecorations[index],
-                clippedRanges(ranges.map(range => ({ start: document.offsetAt(range.start), end: document.offsetAt(range.end) })))));
+            indexed.layers ??= getDepthAnalysis(document, analysis).layers.map(ranges =>
+                ranges.map(range => ({ start: document.offsetAt(range.start), end: document.offsetAt(range.end) })));
+            indexed.layers.forEach((spans, index) => next.set(this.blockDecorations[index], clippedRanges(spans)));
         }
         const paint = () => {
             this.pending.delete(editor);
-            if (this.disposed || document.isClosed || document.version !== cached!.version) return;
+            if (this.disposed || document.isClosed || editor.document !== document || document.version !== cached!.version) return;
             for (const key of this.visibleKeys()) {
                 if (!categoryEnabled(document, key)) continue;
                 const type = set.decorations.get(key);
                 const mapping = schema.mapping[key];
                 if (!type || !mapping) continue;
-                const spans: Span[] = analysis.tokens.filter(token => token.key === key);
-                const regex = new RegExp(mapping.regex.source, mapping.regex.flags);
-                let match: RegExpExecArray | null;
-                while ((match = regex.exec(analysis.code)) !== null) {
-                    if (!match[0].length) { regex.lastIndex++; continue; }
-                    const span = { start: match.index, end: match.index + match[0].length };
-                    spans.push(span);
+                let spans = indexed!.categories.get(key);
+                if (!spans) {
+                    spans = categorySpans(analysis, schema, key);
+                    indexed!.categories.set(key, spans);
                 }
-                editor.setDecorations(type, clippedRanges(spans.filter(visible)));
+                next.set(type, clippedRanges(spans.filter(visible)));
             }
+            const previous = this.applied.get(editor);
+            const sameVersion = previous?.document === document && previous.version === document.version;
+            // Replace populated layers first; clear only styles absent from the new frame.
+            const replacements = [...next].sort((left, right) => Number(!left[1].length) - Number(!right[1].length));
+            replacements.forEach(([type, ranges]) => {
+                const old = sameVersion ? previous?.ranges.get(type) : undefined;
+                if (old && old.length === ranges.length && old.every((range, index) => {
+                    const other = ranges[index];
+                    return range.start.line === other.start.line && range.start.character === other.start.character &&
+                        range.end.line === other.end.line && range.end.character === other.end.character;
+                })) return;
+                if (ranges.length || previous?.ranges.has(type)) editor.setDecorations(type, ranges);
+            });
+            previous?.ranges.forEach((_, type) => { if (!next.has(type)) editor.setDecorations(type, []); });
+            this.applied.set(editor, { document, version: document.version, ranges: next });
         };
-        const speed = Math.min(2000, Math.max(0, config.get('speed', 300)));
+        const speed = Math.min(2000, Math.max(0, config.get('speed', 0)));
         if (animate && speed > 0) this.pending.set(editor, setTimeout(paint, speed));
         else paint();
     }
@@ -198,8 +224,10 @@ export class BloomPainter {
         this.pending.forEach(timer => clearTimeout(timer));
         this.pending.clear();
         this.disposed = true;
-        this.languageDecorations.forEach(set => set.decorations.forEach(decoration => decoration.dispose()));
-        this.blockDecorations.forEach(decoration => decoration.dispose());
+        this.allCategoryDecorations.forEach(decoration => decoration.dispose());
+        this.allCategoryDecorations.clear();
+        this.blockSets.forEach(types => types.forEach(decoration => decoration.dispose()));
+        this.blockSets.clear();
         this.dimmers.forEach(decoration => decoration.dispose());
         this.languageDecorations.clear();
         this.dimmers.clear();

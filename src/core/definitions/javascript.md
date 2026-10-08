@@ -14,8 +14,8 @@ style: {"color": "#00f2ff", "fontWeight": "bold", "backgroundColor": "rgba(0, 24
 
 ## mutation
 status: enabled
-regex: `\+\+|--|\*\*=|\?\?=|>>=|<<=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])|(?<![\w$])(?:let|var)(?![\w$])`
-examples: ["let","var"]
+regex: `\+\+|--|\*\*=|\?\?=|>>=|<<=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])`
+examples: ["+=","="]
 style: {"color": "#ff8c00", "backgroundColor": "rgba(255, 140, 0, 0.08)", "fontWeight": "600"}
 
 ## guards
@@ -44,7 +44,7 @@ style: {"color": "#818cf8", "fontStyle": "italic", "fontWeight": "800"}
 
 ## structural
 status: enabled
-regex: `(?<![\w$])(?:class|export|import)(?![\w$])`
+regex: `(?<![\w$])(?:class|export|import|let|var)(?![\w$])`
 examples: ["class","export","import"]
 style: {"color": "#f472b6", "fontWeight": "bold", "backgroundColor": "rgba(244, 114, 182, 0.15)", "border": "1px solid #f472b6"}
 

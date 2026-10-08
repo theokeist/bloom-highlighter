@@ -1,8 +1,10 @@
 import * as ts from 'typescript';
 import type { OperationalKey } from './schemaParser';
+import { scriptPatterns } from './patternAnalysis';
 
 export interface Span { start: number; end: number }
 export interface CognitiveToken extends Span { key: OperationalKey }
+export interface SyntaxAnalysis { tokens: CognitiveToken[]; exclusions: Partial<Record<OperationalKey, Span[]>> }
 export interface Scope extends Span { headerEnd: number }
 export interface CodeAnalysis {
     code: string;
@@ -10,6 +12,7 @@ export interface CodeAnalysis {
     scopes: Scope[];
     frameworks: string[];
     complete: boolean;
+    syntax?: SyntaxAnalysis;
 }
 
 export function emptyAnalysis(text: string): CodeAnalysis {
@@ -19,19 +22,21 @@ export function emptyAnalysis(text: string): CodeAnalysis {
 const apiGroups: Record<string, Partial<Record<OperationalKey, string[]>>> = {
     react: {
         mutation: ['useState', 'useReducer', 'useRef', 'useActionState', 'useOptimistic'],
-        guards: ['useEffect', 'useLayoutEffect', 'useInsertionEffect', 'useMemo', 'useCallback', 'useTransition', 'useDeferredValue'],
+        logic: ['useMemo', 'useCallback', 'useDeferredValue'],
+        guards: ['useEffect', 'useLayoutEffect', 'useInsertionEffect', 'useTransition'],
         interface: ['useContext', 'createContext', 'forwardRef', 'memo', 'useImperativeHandle', 'useSyncExternalStore'],
     },
     vue: {
         mutation: ['ref', 'shallowRef', 'reactive', 'shallowReactive', 'toRef', 'toRefs', 'customRef'],
-        guards: ['computed', 'watch', 'watchEffect', 'watchPostEffect', 'onMounted', 'onUnmounted', 'onUpdated', 'nextTick'],
+        logic: ['computed'],
+        guards: ['watch', 'watchEffect', 'watchPostEffect', 'onMounted', 'onUnmounted', 'onUpdated', 'nextTick'],
         interface: ['defineComponent', 'provide', 'inject', 'readonly'],
     },
     svelte: {
         guards: ['onMount', 'onDestroy', 'beforeUpdate', 'afterUpdate', 'tick', 'untrack'],
         interface: ['getContext', 'setContext', 'createEventDispatcher'],
     },
-    'svelte/store': { mutation: ['writable'], guards: ['derived'], interface: ['readable', 'get'] },
+    'svelte/store': { mutation: ['writable'], logic: ['derived'], interface: ['readable', 'get'] },
     'svelte/reactivity': { mutation: ['SvelteMap', 'SvelteSet', 'SvelteDate', 'SvelteURL'] },
 };
 
@@ -123,7 +128,7 @@ export function analyzeScript(text: string, jsx = false, macros?: 'vue' | 'svelt
                 addToken(expression, 'mutation');
             } else if (macros === 'svelte') {
                 if (/^\$state(?:\.(?:raw|snapshot))?$/.test(name)) addToken(expression, 'mutation');
-                if (/^\$(?:derived(?:\.by)?|effect(?:\.(?:pre|tracking|root))?)$/.test(name)) addToken(expression, 'guards');
+                if (/^\$(?:derived(?:\.by)?|effect(?:\.(?:pre|tracking|root))?)$/.test(name)) addToken(expression, name.startsWith('$derived') ? 'logic' : 'guards');
                 if (['$props', '$bindable', '$host'].includes(name)) addToken(expression, 'interface');
             }
         }
@@ -179,12 +184,27 @@ export function analyzeScript(text: string, jsx = false, macros?: 'vue' | 'svelt
         }
     }
     result.code = chars.join('');
+    result.syntax = scriptPatterns(file, result.code);
     return result;
 }
 
 export function mergeAnalysis(target: CodeAnalysis, source: CodeAnalysis, offset: number): void {
     target.code = target.code.slice(0, offset) + source.code + target.code.slice(offset + source.code.length);
     target.tokens.push(...source.tokens.map(t => ({ ...t, start: t.start + offset, end: t.end + offset })));
+    if (source.syntax) {
+        target.syntax ??= { tokens: [], exclusions: {} };
+        target.syntax.tokens.push(...source.syntax.tokens.map(token => ({ ...token, start: token.start + offset, end: token.end + offset })));
+        for (const key of Object.keys(source.syntax.exclusions) as OperationalKey[]) {
+            (target.syntax.exclusions[key] ??= []).push(...source.syntax.exclusions[key]!.map(span => ({ start: span.start + offset, end: span.end + offset })));
+            const merged: Span[] = [];
+            for (const range of target.syntax.exclusions[key]!.sort((left, right) => left.start - right.start)) {
+                const prior = merged[merged.length - 1];
+                if (prior && range.start <= prior.end) prior.end = Math.max(prior.end, range.end);
+                else merged.push({ ...range });
+            }
+            target.syntax.exclusions[key] = merged;
+        }
+    }
     target.scopes.push(...source.scopes.map(s => ({ start: s.start + offset, headerEnd: s.headerEnd + offset, end: s.end + offset })));
     target.frameworks = [...new Set([...target.frameworks, ...source.frameworks])];
 }

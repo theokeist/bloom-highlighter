@@ -74,18 +74,31 @@ function installMock() {
     Module._load = function(name, ...args) { return name === 'vscode' ? vscode : original.call(this, name, ...args); };
     function document(text, languageId = 'typescript') {
         let content = text;
-        let lines = content.split('\n');
+        let lines;
+        let starts;
+        const indexLines = () => {
+            lines = content.split('\n');
+            let offset = 0;
+            starts = lines.map(line => { const start = offset; offset += line.length + 1; return start; });
+        };
+        indexLines();
         const doc = {
             languageId, version: 1, isClosed: false, fileName: '/sample.' + languageId, uri: { path: '/sample.' + languageId },
             getText: () => content,
             get lineCount() { return lines.length; },
             positionAt(offset) {
-                const before = content.slice(0, offset).split('\n');
-                return new Position(before.length - 1, before.at(-1).length);
+                offset = Math.max(0, Math.min(content.length, offset));
+                let low = 0;
+                let high = starts.length;
+                while (low + 1 < high) {
+                    const mid = (low + high) >>> 1;
+                    if (starts[mid] <= offset) low = mid; else high = mid;
+                }
+                return new Position(low, offset - starts[low]);
             },
-            offsetAt(position) { return lines.slice(0, position.line).reduce((sum, line) => sum + line.length + 1, 0) + position.character; },
+            offsetAt(position) { return starts[position.line] + position.character; },
             lineAt(line) { return { text: lines[line], range: new Range(new Position(line, 0), new Position(line, lines[line].length)) }; },
-            edit(value) { content = value; lines = content.split('\n'); this.version++; }
+            edit(value) { content = value; indexLines(); this.version++; }
         };
         return doc;
     }

@@ -32,10 +32,22 @@ export function activate(context: vscode.ExtensionContext): void {
     status.command = 'bloom.selectView';
     status.tooltip = 'Choose a Bloom view or turn highlighting on/off';
     let disposed = false;
+    let sidebarSignature = '';
+    let sidebarEditor: vscode.TextEditor | undefined;
+    let sidebarSchema: ReturnType<typeof UniversalLoader.getSchema> | undefined;
     const refreshStatus = () => {
-        sidebar.refresh();
         const editor = vscode.window.activeTextEditor;
         const label = painter.status(editor);
+        const config = vscode.workspace.getConfiguration('bloom', editor?.document.uri);
+        const schema = editor && UniversalLoader.getSchema(editor.document.languageId);
+        const signature = JSON.stringify([label, editor?.document.languageId, painter.mode,
+            config.get('speed', 0), config.get('dimOpacity', 0.65), config.get('languageSettings', {})]);
+        if (signature !== sidebarSignature || editor !== sidebarEditor || schema !== sidebarSchema) {
+            sidebarSignature = signature;
+            sidebarEditor = editor;
+            sidebarSchema = schema;
+            sidebar.refresh();
+        }
         const enabled = !!editor && !!UniversalLoader.getSchema(editor.document.languageId) &&
             highlightingEnabled(editor.document);
         void vscode.commands.executeCommand('setContext', 'bloom.supported', enabled);
@@ -67,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
                 output.appendLine(String(error));
             }
         }
-        refreshStatus();
+        if (editor === vscode.window.activeTextEditor) refreshStatus();
     };
     const cancel = (editor: vscode.TextEditor) => {
         generations.set(editor, (generations.get(editor) ?? 0) + 1);
@@ -164,7 +176,7 @@ export function activate(context: vscode.ExtensionContext): void {
             if (picked) await updateSetting('dimOpacity', picked.value);
         }),
         vscode.commands.registerCommand('bloom.toggleInstant', async () => {
-            const speed = vscode.workspace.getConfiguration('bloom', vscode.window.activeTextEditor?.document.uri).get<number>('speed', 300);
+            const speed = vscode.workspace.getConfiguration('bloom', vscode.window.activeTextEditor?.document.uri).get<number>('speed', 0);
             const saved = context.workspaceState.get<number>('bloom.previousSpeed', 300);
             if (speed > 0) await context.workspaceState.update('bloom.previousSpeed', speed);
             await updateSetting('speed', speed === 0 ? saved > 0 ? saved : 300 : 0);

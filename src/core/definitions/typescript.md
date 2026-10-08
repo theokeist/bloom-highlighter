@@ -2,17 +2,17 @@
 
 ## alert
 status: enabled
-regex: `(!==|!=|\b(throw|error|reject|assert)\b)`
+regex: `\b(throw|error|reject|assert)\b`
 style: {"color": "#ff0055", "fontWeight": "900", "backgroundColor": "rgba(255, 0, 85, 0.15)", "textDecoration": "underline solid #ff0055 2px"}
 
 ## logic
 status: enabled
-regex: `===|!==|==|!=|&&|\|\||\?\?|=>|<=|>=|[<>?:]|!(?!=)`
+regex: `===|!==|==|!=|&&|\|\||\?\?|<=|>=|[<>?:]|!(?!=)`
 style: {"color": "#00f2ff", "fontWeight": "bold", "backgroundColor": "rgba(0, 242, 255, 0.1)", "border": "1px solid rgba(0, 242, 255, 0.2)", "borderRadius": "2px"}
 
 ## mutation
 status: enabled
-regex: `\+\+|--|\*\*=|&&=|\|\|=|\?\?=|>>>=|>>=|<<=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])|\b(let|var)\b`
+regex: `\+\+|--|\*\*=|&&=|\|\|=|\?\?=|>>>=|>>=|<<=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])`
 style: {"color": "#ff8c00", "backgroundColor": "rgba(255, 140, 0, 0.08)", "fontWeight": "600"}
 
 ## guards
@@ -37,7 +37,7 @@ style: {"color": "#818cf8", "fontStyle": "italic", "fontWeight": "800"}
 
 ## structural
 status: enabled
-regex: `\b(class|namespace|module|export|import)\b`
+regex: `\b(class|namespace|module|export|import|let|var)\b`
 style: {"color": "#f472b6", "fontWeight": "bold", "backgroundColor": "rgba(244, 114, 182, 0.15)", "border": "1px solid #f472b6"}
 
 ## anchor

@@ -160,7 +160,7 @@ test('Svelte runes, components, bindings and block expressions exclude CSS/prose
     const result = analyzeCode(text, 'svelte');
     assert.ok(tokens(text, 'svelte', 'mutation').includes('$state'));
     assert.ok(tokens(text, 'svelte', 'mutation').includes('bind:value'));
-    assert.ok(tokens(text, 'svelte', 'guards').includes('$derived'));
+    assert.ok(tokens(text, 'svelte', 'logic').includes('$derived'));
     assert.ok(tokens(text, 'svelte', 'guards').includes('{#if'));
     assert.equal(result.code.includes('color'), false);
     assert.equal(result.code.includes('throw'), false);

@@ -10,10 +10,10 @@ const { registerSidebar } = require('../out/sidebar');
 function section(id) {
     const provider = mock.providers.get('bloom.controls');
     const root = provider.getChildren();
-    const heading = root.find(row => row.id === id);
+    const heading = root.find(row => row.id === 'bloom.highlighting');
     assert.ok(heading, 'Section must be inside the existing Code Views panel');
     assert.equal(heading.collapsibleState, mock.vscode.TreeItemCollapsibleState.Expanded);
-    return { getChildren: () => provider.getChildren(heading), onDidChangeTreeData: provider.onDidChangeTreeData };
+    return { getChildren: () => provider.getChildren(heading).filter(row => id === 'bloom.colors' ? row.contextValue : id === 'bloom.legend' ? !row.command : true), onDidChangeTreeData: provider.onDidChangeTreeData };
 }
 
 test.beforeEach(() => {
@@ -39,10 +39,10 @@ test('guide follows language, view, unsupported files, disable, size limits and 
     let rows = guide.getChildren();
     assert.equal(rows[0].label, 'dart');
     assert.equal(rows.find(row => row.label === 'Active view').description, 'Structural');
-    assert.match(rows.find(row => row.label === 'Stable values').description, /final/);
-    assert.match(rows.find(row => row.label === 'Declarations and modules').description, /mixin/);
-    assert.equal(rows.find(row => row.label === 'Declarations and modules').iconPath.color.id, 'bloom.legend.structural');
-    assert.equal(rows.some(row => row.label === 'State changes'), false);
+    assert.match(rows.find(row => row.label === 'Stable values').tooltip, /final/);
+    assert.match(rows.find(row => row.label === 'Declarations and modules').tooltip, /mixin/);
+    assert.equal(rows.find(row => row.label === 'Declarations and modules').description.startsWith('Active'), true);
+    assert.equal(rows.find(row => row.label === 'Writes and state changes').description.startsWith('On'), true);
     const categories = section('bloom.colors').getChildren();
     assert.equal(categories.find(row => row.contextValue === 'functions').iconPath.id, 'symbol-method');
     assert.ok(categories.every(row => row.iconPath?.id));
@@ -51,8 +51,8 @@ test('guide follows language, view, unsupported files, disable, size limits and 
     sidebar.refresh();
     rows = guide.getChildren();
     assert.equal(updates, 1);
-    assert.equal(rows.find(row => row.label === 'Contracts and functions').description, 'def');
-    assert.match(rows.find(row => row.label === 'Built-in types and APIs').description, /list/);
+    assert.match(rows.find(row => row.label === 'Contracts and functions').tooltip, /def/);
+    assert.match(rows.find(row => row.label === 'Built-in types and APIs').tooltip, /list/);
     editor.document.languageId = 'rust';
     assert.equal(guide.getChildren()[0].description, 'Dedicated patterns');
     mock.settings.enabled = false;
@@ -109,4 +109,22 @@ test('adjustments change real settings, restore delay, respect folder scope and 
     assert.equal(section('bloom.legend').getChildren().find(row => row.label === 'Active view').description, 'Operational');
     assert.deepEqual(require('../package.json').contributes.views.bloom.map(view => view.id), ['bloom.controls']);
     assert.ok(mock.commands.has('bloom.showSidebar'));
+});
+
+
+test('all highlighting controls share one expanded section with category actions', t => {
+    mock.editor(mock.document('return;', 'dart'));
+    const sidebar = registerSidebar(() => ({ mode: 'operational', categories: ['alert', 'logic', 'guards', 'mutation'] }));
+    t.after(() => sidebar.dispose());
+    const provider = mock.providers.get('bloom.controls');
+    const root = provider.getChildren();
+    assert.deepEqual(root.map(row => row.label), ['Code Highlighting']);
+    const rows = provider.getChildren(root[0]);
+    for (const label of ['Operational', 'Interfaces', 'Structural', 'Dangerous', 'Toggle highlighting',
+        'This language', 'Dimming', 'Instant switching', 'Strong danger focus', 'Active view']) {
+        assert.ok(rows.some(row => row.label === label), label);
+    }
+    const category = rows.find(row => row.contextValue === 'guards');
+    assert.deepEqual(provider.getChildren(category).filter(row => row.command).map(row => row.command.command),
+        ['bloom.toggleCategory', 'bloom.chooseColor']);
 });

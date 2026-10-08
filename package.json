@@ -136,8 +136,8 @@
       "properties": {
         "bloom.speed": {
           "type": "number",
-          "default": 300,
-          "description": "Delay in milliseconds before semantic highlights appear when switching views. Set to 0 for instant, reduced-motion updates.",
+          "default": 0,
+          "description": "Optional delay in milliseconds before replacing highlights when switching views. Defaults to 0 for instant updates; existing highlights stay visible until replacement.",
           "minimum": 0,
           "maximum": 2000,
           "scope": "resource"
@@ -335,6 +335,7 @@
     "watch": "npm run compile && node scripts/watch.js",
     "pretest": "npm run compile",
     "lint": "eslint src scripts tests",
+    "test:large": "npm run compile && node --test tests/largeRendering.test.js",
     "test": "node --test tests/*.test.js",
     "generate-rules": "node scripts/generate-language-rules.js",
     "package": "vsce package",

@@ -2,7 +2,7 @@
 
 ## alert
 status: enabled
-regex: `!=|\b(throw|rethrow|assert|Error|Exception)\b`
+regex: `\b(throw|rethrow|assert|Error|Exception)\b`
 style: {"color": "#ff0055", "fontWeight": "900", "backgroundColor": "rgba(255, 0, 85, 0.15)", "textDecoration": "underline solid #ff0055 2px"}
 
 ## logic
@@ -12,7 +12,7 @@ style: {"color": "#00f2ff", "fontWeight": "bold", "backgroundColor": "rgba(0, 24
 
 ## mutation
 status: enabled
-regex: `\+\+|--|\?\?=|>>=|<<=|~/=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])|\b(var|late)\b`
+regex: `\+\+|--|\?\?=|>>=|<<=|~/=|[+*/%&|^\-]=|(?<![=!<>])=(?![=>])`
 style: {"color": "#ff8c00", "backgroundColor": "rgba(255, 140, 0, 0.08)", "fontWeight": "600"}
 
 ## guards
@@ -37,12 +37,12 @@ style: {"color": "#818cf8", "fontStyle": "italic", "fontWeight": "800"}
 
 ## structural
 status: enabled
-regex: `\b(class|mixin|extension|enum|import|export|part|library)\b`
+regex: `\b(class|mixin|extension|enum|import|export|part|library|var|late|static)\b`
 style: {"color": "#f472b6", "fontWeight": "bold", "backgroundColor": "rgba(244, 114, 182, 0.15)", "border": "1px solid #f472b6"}
 
 ## anchor
 status: enabled
-regex: `\b(const|final|static)\b`
+regex: `\b(const|final)\b`
 style: {"color": "#ffffff", "backgroundColor": "#3f3f46", "border": "1px solid #52525b", "borderRadius": "3px", "fontWeight": "900"}
 
 ## internal
