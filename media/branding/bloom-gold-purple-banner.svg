@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="720" viewBox="0 0 1440 720" role="img" aria-labelledby="title desc">
+  <title id="title">Bloom Highlighter gold and purple promotional banner</title>
+  <desc id="desc">Neutral geometric logo with Bloom Highlighter and the words Clearer code. Easier reading. on a purple background with gold accents.</desc>
+  <rect width="1440" height="720" fill="#2E164B"/>
+  <circle cx="1370" cy="40" r="290" fill="#392057"/>
+  <circle cx="1350" cy="700" r="220" fill="#392057"/>
+  <g transform="translate(96 112)">
+    <rect width="108" height="108" rx="32" fill="#AA87D5"/>
+    <rect x="40" y="40" width="108" height="108" rx="32" fill="#E8BC59"/>
+    <path d="M40 40h36a32 32 0 0 1 32 32v36H72a32 32 0 0 1-32-32Z" fill="#FBF8F1"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="96" y="370" fill="#FBF8F1" font-size="76" font-weight="600">Bloom Highlighter</text>
+    <text x="96" y="446" fill="#E8BC59" font-size="40">Clearer code. Easier reading.</text>
+    <text x="96" y="562" fill="#E1D5EF" font-size="27">Visual cues for learning, exploring, and navigating source code.</text>
+  </g>
+  <rect x="96" y="620" width="144" height="6" rx="3" fill="#E8BC59"/>
+</svg>

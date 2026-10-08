@@ -41,8 +41,8 @@ fs.writeFileSync(readmePath, readme);
 const button = (label, href) => href ? `<a class="button" href="${href}">${label}</a>` : `<span class="button disabled">${label} — coming after publishing</span>`;
 fs.writeFileSync(path.join(root, 'docs/install.html'), `<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Install Bloom</title>
-<style>body{font:17px system-ui;background:#101a2d;color:#f4f6fc;max-width:760px;margin:60px auto;padding:24px;line-height:1.6}img{width:96px}.button{display:inline-block;background:#fbbf24;color:#101a2d;padding:12px 18px;border-radius:8px;text-decoration:none;margin:6px 8px 6px 0;font-weight:600}.disabled{background:#28344a;color:#c8d1df}a{color:#72dcf0}code{overflow-wrap:anywhere}</style>
-<img src="../media/icon.png" alt="Bloom flower"><h1>Bloom Syntax Highlighter</h1><p>Find flow, functions, structure and risky operations with four code views.</p>
+<style>body{font:17px system-ui;background:#2E164B;color:#FBF8F1;max-width:760px;margin:60px auto;padding:24px;line-height:1.6}img{width:96px}.button{display:inline-block;background:#E8BC59;color:#2E164B;padding:12px 18px;border-radius:8px;text-decoration:none;margin:6px 8px 6px 0;font-weight:600}.disabled{background:#392057;color:#E1D5EF}a{color:#E8BC59}code{overflow-wrap:anywhere}</style>
+<img src="../media/icons/icon.png" alt="Bloom icon"><h1>Bloom Syntax Highlighter</h1><p>Find flow, functions, structure and risky operations with four code views.</p>
 ${button('Install from Marketplace', store)}${button('Open in VS Code', id && `vscode:extension/${id}`)}${button('Download VSIX', download)}
 <p>GitHub download becomes available when a release with the matching VSIX asset is published. Marketplace buttons require a published listing.</p>
 <p>Requires desktop VS Code 1.95 or newer. For a downloaded VSIX, run <strong>Extensions: Install from VSIX…</strong>, select the file, then reload the window.</p>

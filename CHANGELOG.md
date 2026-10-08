@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.0] - 2026-10-08
+### Changed
+- Neutral geometric logo and gold-and-purple branding for the extension icon, README, installation page and promotional artwork.
+- Organized assets into `media/icons`, `media/branding` and `media/store`, with repeatable PNG generation.
+- README now describes the audience: programming students and beginners, developers reading unfamiliar or complex code, and people who benefit from visual cues for focus and navigation.
+- Usage documentation follows the current Code Highlighting sidebar controls.
+
+### Fixed
+- The main highlighting toggle updates an existing folder-level setting instead of an ineffective workspace setting.
+- Unexpected analysis-worker exits reject active and queued requests instead of leaving analysis promises pending.
+
+### Verification
+- 63 automated tests and lint passed; branded PNGs were visually inspected and VSIX asset inclusion was checked.
+- Live VS Code interaction and Marketplace publication are separate from local build and package verification.
+
 ## [0.12.1] - 2026-10-05
 ### Fixed
 - Highlight Guide and Quick Adjustments now appear as expanded groups directly inside the existing Code Views panel, avoiding dependence on separate view placement or visibility.

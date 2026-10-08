@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080" role="img" aria-labelledby="title desc">
+  <title id="title">Bloom Highlighter gold and purple square promotional image</title>
+  <desc id="desc">Gold and lavender geometric logo above Bloom Highlighter and Clearer code. Easier reading.</desc>
+  <rect width="1080" height="1080" fill="#2E164B"/>
+  <circle cx="1040" cy="70" r="300" fill="#392057"/>
+  <g transform="translate(318 170) scale(3)">
+    <rect width="108" height="108" rx="32" fill="#AA87D5"/>
+    <rect x="40" y="40" width="108" height="108" rx="32" fill="#E8BC59"/>
+    <path d="M40 40h36a32 32 0 0 1 32 32v36H72a32 32 0 0 1-32-32Z" fill="#FBF8F1"/>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">
+    <text x="540" y="760" fill="#FBF8F1" font-size="72" font-weight="600">Bloom Highlighter</text>
+    <text x="540" y="850" fill="#E8BC59" font-size="43">Clearer code. Easier reading.</text>
+  </g>
+</svg>

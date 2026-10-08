@@ -128,3 +128,23 @@ test('all highlighting controls share one expanded section with category actions
     assert.deepEqual(provider.getChildren(category).filter(row => row.command).map(row => row.command.command),
         ['bloom.toggleCategory', 'bloom.chooseColor']);
 });
+
+test('main highlighting toggle updates the effective folder override', async t => {
+    const { activate } = require('../out/extension');
+    const context = { extensionPath: path.resolve(__dirname, '..'), extensionMode: 1, subscriptions: [],
+        workspaceState: { get: (_name, fallback) => fallback, update: async () => {} } };
+    mock.editor(mock.document('return;', 'dart'));
+    mock.vscode.workspace.workspaceFolders = [{}];
+    mock.overrides.enabled = { workspaceFolderValue: true };
+    activate(context);
+    t.after(() => context.subscriptions.forEach(item => item.dispose()));
+    await mock.commands.get('bloom.toggle')();
+    assert.equal(mock.settingWrites.at(-1).target, mock.vscode.ConfigurationTarget.WorkspaceFolder);
+    assert.equal(mock.settingWrites.at(-1).value, false);
+    delete mock.overrides.enabled;
+    await mock.commands.get('bloom.toggle')();
+    assert.equal(mock.settingWrites.at(-1).target, mock.vscode.ConfigurationTarget.Workspace);
+    mock.vscode.workspace.workspaceFolders = [];
+    await mock.commands.get('bloom.toggle')();
+    assert.equal(mock.settingWrites.at(-1).target, mock.vscode.ConfigurationTarget.Global);
+});

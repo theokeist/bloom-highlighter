@@ -50,3 +50,16 @@ test('cancelled and disposed requests settle without repaintable results', async
     assert.equal(await second, undefined);
     assert.equal(await service.analyze(doc, true), undefined);
 });
+
+test('unexpected worker exit settles active and queued requests', async t => {
+    const service = new AnalysisService();
+    t.after(() => service.dispose());
+    const active = service.analyze(document('const n = 1;'.repeat(3000)), true);
+    const queued = service.analyze(document('return 2;'), true);
+    const settled = Promise.allSettled([active, queued]);
+    await service.worker.terminate();
+    const results = await Promise.race([settled, delay(1000).then(() => undefined)]);
+    assert.ok(results, 'Worker exit must settle every pending analysis request');
+    assert.ok(results.every(result => result.status === 'rejected'));
+    assert.equal(await service.analyze(document('return 3;'), true), undefined);
+});

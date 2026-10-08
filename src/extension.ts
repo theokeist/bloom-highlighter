@@ -102,7 +102,8 @@ export function activate(context: vscode.ExtensionContext): void {
     const toggle = async () => {
         const editor = vscode.window.activeTextEditor;
         const config = vscode.workspace.getConfiguration('bloom', editor?.document.uri);
-        const target = vscode.workspace.workspaceFolders?.length ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
+        const target = config.inspect('enabled')?.workspaceFolderValue !== undefined ? vscode.ConfigurationTarget.WorkspaceFolder :
+            vscode.workspace.workspaceFolders?.length ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
         await config.update('enabled', !config.get('enabled', true), target);
     };
     const updateSetting = async (name: string, value: number) => {

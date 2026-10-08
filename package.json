@@ -2,7 +2,7 @@
   "name": "bloom-highlighter",
   "displayName": "Bloom Syntax Highlighter",
   "description": "Language-specific cognitive code views, category switches, colors and risky-operation review",
-  "version": "0.13.2",
+  "version": "0.14.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/theokeist/bloom-highlighter.git"
@@ -37,7 +37,7 @@
         {
           "id": "bloom",
           "title": "Bloom",
-          "icon": "media/bloom.svg"
+          "icon": "media/icons/bloom.svg"
         }
       ]
     },
@@ -358,7 +358,7 @@
     "svelte": "^5.57.1",
     "typescript": "5.9"
   },
-  "icon": "media/icon.png",
+  "icon": "media/icons/icon.png",
   "license": "MIT",
   "keywords": [
     "syntax highlighting",

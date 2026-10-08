@@ -57,4 +57,4 @@ After the listing is available, verify the Marketplace install link, the `vscode
 
 ## Install page
 
-Open `docs/install.html` locally to preview. It is static HTML and needs no server. To host it on GitHub Pages, publish the repository root so `docs/install.html` and `media/icon.png` retain their relative paths. A Pages URL can be added once the repository exists; this preparation does not enable hosting or publish externally.
+Open `docs/install.html` locally to preview. It is static HTML and needs no server. To host it on GitHub Pages, publish the repository root so `docs/install.html` and `media/icons/icon.png` retain their relative paths. A Pages URL can be added once the repository exists; this preparation does not enable hosting or publish externally.

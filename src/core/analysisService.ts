@@ -38,13 +38,18 @@ export class AnalysisService {
             }
             this.startNext();
         });
-        this.worker.on('error', error => {
-            this.active?.reject(error);
-            this.active = undefined;
-            this.queue.forEach(task => task.reject(error));
-            this.queue.clear();
-            this.disposed = true;
+        this.worker.on('error', error => this.fail(error));
+        this.worker.on('exit', code => {
+            if (!this.disposed) this.fail(new Error(`Bloom analysis worker exited unexpectedly (code ${code}).`));
         });
+    }
+
+    private fail(error: Error): void {
+        this.disposed = true;
+        this.active?.reject(error);
+        this.active = undefined;
+        this.queue.forEach(task => task.reject(error));
+        this.queue.clear();
     }
 
     public analyze(document: TextDocument, frameworks: boolean): Promise<CodeAnalysis | undefined> {

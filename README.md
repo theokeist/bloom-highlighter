@@ -1,11 +1,16 @@
 # Bloom Syntax Highlighter
 
-[![Build status](https://github.com/theokeist/bloom-highlighter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/theokeist/bloom-highlighter/actions/workflows/ci.yml)
-[![Source version](https://img.shields.io/github/package-json/v/theokeist/bloom-highlighter?label=version)](https://github.com/theokeist/bloom-highlighter/blob/main/package.json)
+[Build status](https://github.com/theokeist/bloom-highlighter/actions/workflows/ci.yml)
 
-![Bloom: four views, customizable colors and language-wide switches](https://raw.githubusercontent.com/theokeist/bloom-highlighter/main/media/store/bloom-overview.png)
+![Bloom Highlighter: Clearer code. Easier reading.](media/branding/bloom-gold-purple-banner.png)
 
 Make code easier to read. Bloom brings flow, functions and structure into focus while you code in VS Code.
+
+## Who Bloom Highlighter is for
+
+- Students and beginners learning programming.
+- Developers reading unfamiliar or complex code.
+- People who find additional visual cues helpful for focus and navigation.
 
 <!-- install-links:start -->
 [Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=theokeist-hcode-org.bloom-highlighter) · [Open in VS Code](vscode:extension/theokeist-hcode-org.bloom-highlighter) · [Releases](https://github.com/theokeist/bloom-highlighter/releases) · [Installation guide](INSTALL.md)
@@ -20,9 +25,9 @@ Marketplace links activate after the listing is published.
 - **Structural** — spot declarations, imports and stable values.
 - **Dangerous** — review potentially risky operations, with optional stronger focus.
 
-![Illustrated Dart example showing Operational, Interfaces, Structural and Dangerous highlighting](https://raw.githubusercontent.com/theokeist/bloom-highlighter/main/media/store/bloom-views.png)
+![Illustrated Dart example showing Operational, Interfaces, Structural and Dangerous highlighting](media/store/bloom-views.png)
 
-Open the Bloom flower in the Activity Bar. Expand a category to toggle it or choose its color. Your choices apply across files of that language.
+Open the Bloom icon in the Activity Bar. Expand a category to toggle it or choose its color. Your choices apply across files of that language.
 
 ## Get started
 
